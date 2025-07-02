@@ -1,14 +1,15 @@
 {
-  "builds": {
-    "android": {
-      "release": {
-        "workflow": "managed"
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
       }
     },
-    "ios": {
-      "release": {
-        "workflow": "managed"
-      }
-    }
+    "production": {}
   }
 }

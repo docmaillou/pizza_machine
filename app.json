@@ -25,6 +25,7 @@
     },
     "web": {
       "bundler": "metro"
-    }
+    },
+    "plugins": ["expo-dev-client"]
   }
 }
