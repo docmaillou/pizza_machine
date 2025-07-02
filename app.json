@@ -1,21 +1,27 @@
 {
   "expo": {
-    "name": "Pizza POS",
-    "slug": "pizza-pos-app",
+    "name": "Pizza Barbas POS",
+    "slug": "pizza-barbas-pos",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "platforms": ["ios", "android", "web"],
+    "jsEngine": "jsc",
     "splash": {
-      "backgroundColor": "#FF6B35"
+      "resizeMode": "contain",
+      "backgroundColor": "#3B82F6"
     },
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pizzabarbas.pos",
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#FF6B35"
-      }
+        "backgroundColor": "#3B82F6"
+      },
+      "package": "com.pizzabarbas.pos",
+      "jsEngine": "jsc"
     },
     "web": {
       "bundler": "metro"

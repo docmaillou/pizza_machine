@@ -2,308 +2,297 @@ import React, { useState, useEffect } from 'react';
 import {
     View,
     StyleSheet,
-    ScrollView,
-    Dimensions,
-    Alert,
-} from 'react-native';
-import {
     Text,
-    Card,
-    Button,
-    Title,
-    Paragraph,
-    useTheme,
-    Divider,
-    Chip,
-    DataTable,
-    Searchbar,
-    Menu,
-} from 'react-native-paper';
+    TouchableOpacity,
+    ScrollView,
+    StatusBar,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { MaterialIcons } from '@expo/vector-icons';
+import mockDataService from '../services/MockDataService';
 
-const { width } = Dimensions.get('window');
-
-const ReportsScreen = ({ navigation }) => {
-    const [selectedPeriod, setSelectedPeriod] = useState('today');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [menuVisible, setMenuVisible] = useState(false);
+const ReportsScreen = ({ navigation, route }) => {
+    const [activeTab, setActiveTab] = useState('APERCU');
     const [reportData, setReportData] = useState({
-        sales: {
-            total: 0,
-            transactions: 0,
-            average: 0,
-            tips: 0,
-        },
-        paymentMethods: [],
-        employeePerformance: [],
-        hourlyData: [],
+        salesOverview: null,
+        employeeSales: null
     });
-    const theme = useTheme();
+    const [loading, setLoading] = useState(true);
 
+    // Load data from mock service
     useEffect(() => {
         loadReportData();
-    }, [selectedPeriod]);
+    }, []);
 
-    const loadReportData = () => {
-        // Mock data - in real app, this would come from API/database
-        setReportData({
-            sales: {
-                total: 1247.50,
-                transactions: 23,
-                average: 54.24,
-                tips: 186.25,
-            },
-            paymentMethods: [
-                { method: 'Card', count: 12, amount: 647.50, percentage: 52 },
-                { method: 'Cash', count: 6, amount: 325.00, percentage: 26 },
-                { method: 'NFC/Tap', count: 3, amount: 175.00, percentage: 14 },
-                { method: 'Mobile', count: 2, amount: 100.00, percentage: 8 },
-            ],
-            employeePerformance: [
-                { name: 'John Driver', transactions: 8, sales: 432.50, tips: 65.00 },
-                { name: 'Sarah Cashier', transactions: 10, sales: 545.75, tips: 78.25 },
-                { name: 'Mike Manager', transactions: 5, sales: 269.25, tips: 43.00 },
-            ],
-            hourlyData: [
-                { hour: '10 AM', sales: 125.50, transactions: 2 },
-                { hour: '11 AM', sales: 234.75, transactions: 4 },
-                { hour: '12 PM', sales: 456.25, transactions: 8 },
-                { hour: '1 PM', sales: 321.00, transactions: 6 },
-                { hour: '2 PM', sales: 110.00, transactions: 3 },
-            ],
-        });
-    };
+    // Handle new transactions from navigation params
+    useEffect(() => {
+        if (route.params?.newTransaction) {
+            const { amount, timestamp } = route.params.newTransaction;
+            console.log('New transaction:', amount, timestamp);
+            // Reload data to reflect new transaction
+            loadReportData();
+        }
+    }, [route.params]);
 
-    const formatCurrency = (value) => {
-        return `$${parseFloat(value || 0).toFixed(2)}`;
-    };
+    const loadReportData = async () => {
+        try {
+            setLoading(true);
+            const [salesOverview, employeeSales] = await Promise.all([
+                mockDataService.getSalesOverview(),
+                mockDataService.getEmployeeSales()
+            ]);
 
-    const getPeriodLabel = (period) => {
-        switch (period) {
-            case 'today':
-                return 'Today';
-            case 'week':
-                return 'This Week';
-            case 'month':
-                return 'This Month';
-            case 'year':
-                return 'This Year';
-            default:
-                return 'Today';
+            setReportData({
+                salesOverview,
+                employeeSales
+            });
+        } catch (error) {
+            console.error('Error loading report data:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleExport = (format) => {
-        Alert.alert(
-            'Export Report',
-            `Report would be exported as ${format.toUpperCase()} in production.`,
-            [{ text: 'OK' }]
-        );
-        setMenuVisible(false);
+    const handleBack = () => {
+        navigation.goBack();
     };
 
-    const handleFilter = (period) => {
-        setSelectedPeriod(period);
-        setMenuVisible(false);
-    };
+    const renderOverviewTab = () => {
+        if (loading || !reportData.salesOverview) {
+            return (
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Chargement des données...</Text>
+                </View>
+            );
+        }
 
-    return (
-        <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-            <ScrollView style={styles.scrollView}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Title style={[styles.headerTitle, { color: theme.colors.primary }]}>
-                        Reports & Analytics
-                    </Title>
-                    <View style={styles.headerActions}>
-                        <Menu
-                            visible={menuVisible}
-                            onDismiss={() => setMenuVisible(false)}
-                            anchor={
-                                <Button
-                                    mode="outlined"
-                                    onPress={() => setMenuVisible(true)}
-                                    icon="filter-list"
-                                >
-                                    {getPeriodLabel(selectedPeriod)}
-                                </Button>
-                            }
-                        >
-                            <Menu.Item onPress={() => handleFilter('today')} title="Today" />
-                            <Menu.Item onPress={() => handleFilter('week')} title="This Week" />
-                            <Menu.Item onPress={() => handleFilter('month')} title="This Month" />
-                            <Menu.Item onPress={() => handleFilter('year')} title="This Year" />
-                        </Menu>
+        const { salesOverview } = reportData;
+
+        return (
+            <ScrollView style={styles.tabContent}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Aperçu des ventes</Text>
+                    <Text style={styles.periodText}>{salesOverview.period}</Text>
+                </View>
+
+                <View style={styles.summaryCard}>
+                    <Text style={styles.summaryTitle}>SYNTHÈSE DES VENTES</Text>
+                    <Text style={styles.summaryText}>{salesOverview.summary}</Text>
+                </View>
+
+                <View style={styles.separator} />
+
+                <View style={styles.salesSection}>
+                    <Text style={styles.salesSectionTitle}>VENTES PAR TYPE DE CARTE</Text>
+                    <View style={styles.salesData}>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Vente brute</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.totalSales} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Rabais</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.discounts} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Ventes nettes</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.netSales} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Taxes prévues</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.expectedTaxes} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Pourboires</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.tips} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Frais supplémentaires</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.additionalFees} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Montant collecté</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.totalCollected} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Total Payments ({salesOverview.cardSales.paymentCount})</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.totalPayments} $</Text>
+                        </View>
+                        <View style={styles.salesRow}>
+                            <Text style={styles.salesLabel}>Montant remboursé</Text>
+                            <Text style={styles.salesValue}>{salesOverview.cardSales.refunds} $</Text>
+                        </View>
                     </View>
                 </View>
 
-                {/* Search */}
-                <Searchbar
-                    placeholder="Search transactions..."
-                    onChangeText={setSearchQuery}
-                    value={searchQuery}
-                    style={styles.searchbar}
-                />
+                <View style={styles.separator} />
 
-                {/* Sales Summary */}
-                <Card style={styles.summaryCard}>
-                    <Card.Content>
-                        <Title style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                            Sales Summary - {getPeriodLabel(selectedPeriod)}
-                        </Title>
-                        <View style={styles.summaryGrid}>
-                            <View style={styles.summaryItem}>
-                                <Icon name="attach-money" size={32} color={theme.colors.success} />
-                                <Text style={[styles.summaryValue, { color: theme.colors.success }]}>
-                                    {formatCurrency(reportData.sales.total)}
-                                </Text>
-                                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>
-                                    Total Sales
-                                </Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Icon name="receipt" size={32} color={theme.colors.info} />
-                                <Text style={[styles.summaryValue, { color: theme.colors.info }]}>
-                                    {reportData.sales.transactions}
-                                </Text>
-                                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>
-                                    Transactions
-                                </Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Icon name="trending-up" size={32} color={theme.colors.warning} />
-                                <Text style={[styles.summaryValue, { color: theme.colors.warning }]}>
-                                    {formatCurrency(reportData.sales.average)}
-                                </Text>
-                                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>
-                                    Avg Order
-                                </Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Icon name="thumb-up" size={32} color={theme.colors.accent} />
-                                <Text style={[styles.summaryValue, { color: theme.colors.accent }]}>
-                                    {formatCurrency(reportData.sales.tips)}
-                                </Text>
-                                <Text style={[styles.summaryLabel, { color: theme.colors.textSecondary }]}>
-                                    Total Tips
-                                </Text>
-                            </View>
-                        </View>
-                    </Card.Content>
-                </Card>
+                <View style={styles.salesSection}>
+                    <Text style={styles.salesSectionTitle}>DÉPÔT EN ESPÈCES</Text>
+                </View>
 
-                {/* Payment Methods Breakdown */}
-                <Card style={styles.paymentMethodsCard}>
-                    <Card.Content>
-                        <Title style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                            Payment Methods
-                        </Title>
-                        <DataTable>
-                            <DataTable.Header>
-                                <DataTable.Title>Method</DataTable.Title>
-                                <DataTable.Title numeric>Count</DataTable.Title>
-                                <DataTable.Title numeric>Amount</DataTable.Title>
-                                <DataTable.Title numeric>%</DataTable.Title>
-                            </DataTable.Header>
+                <View style={styles.infoCard}>
+                    <MaterialIcons name="info" size={20} color="#64748B" />
+                    <Text style={styles.infoText}>
+                        Don't pay out tips from your cash drawer at the end of the day? You can hide Tips Payout in reporting settings in Setup on the Web Dashboard.
+                    </Text>
+                </View>
 
-                            {reportData.paymentMethods.map((item, index) => (
-                                <DataTable.Row key={index}>
-                                    <DataTable.Cell>{item.method}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{item.count}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{formatCurrency(item.amount)}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{item.percentage}%</DataTable.Cell>
-                                </DataTable.Row>
-                            ))}
-                        </DataTable>
-                    </Card.Content>
-                </Card>
-
-                {/* Employee Performance */}
-                <Card style={styles.employeeCard}>
-                    <Card.Content>
-                        <Title style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                            Employee Performance
-                        </Title>
-                        <DataTable>
-                            <DataTable.Header>
-                                <DataTable.Title>Employee</DataTable.Title>
-                                <DataTable.Title numeric>Transactions</DataTable.Title>
-                                <DataTable.Title numeric>Sales</DataTable.Title>
-                                <DataTable.Title numeric>Tips</DataTable.Title>
-                            </DataTable.Header>
-
-                            {reportData.employeePerformance.map((employee, index) => (
-                                <DataTable.Row key={index}>
-                                    <DataTable.Cell>{employee.name}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{employee.transactions}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{formatCurrency(employee.sales)}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{formatCurrency(employee.tips)}</DataTable.Cell>
-                                </DataTable.Row>
-                            ))}
-                        </DataTable>
-                    </Card.Content>
-                </Card>
-
-                {/* Hourly Sales */}
-                <Card style={styles.hourlyCard}>
-                    <Card.Content>
-                        <Title style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                            Hourly Sales
-                        </Title>
-                        <DataTable>
-                            <DataTable.Header>
-                                <DataTable.Title>Hour</DataTable.Title>
-                                <DataTable.Title numeric>Sales</DataTable.Title>
-                                <DataTable.Title numeric>Transactions</DataTable.Title>
-                            </DataTable.Header>
-
-                            {reportData.hourlyData.map((hour, index) => (
-                                <DataTable.Row key={index}>
-                                    <DataTable.Cell>{hour.hour}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{formatCurrency(hour.sales)}</DataTable.Cell>
-                                    <DataTable.Cell numeric>{hour.transactions}</DataTable.Cell>
-                                </DataTable.Row>
-                            ))}
-                        </DataTable>
-                    </Card.Content>
-                </Card>
-
-                {/* Export Options */}
-                <Card style={styles.exportCard}>
-                    <Card.Content>
-                        <Title style={[styles.sectionTitle, { color: theme.colors.text }]}>
-                            Export Report
-                        </Title>
-                        <View style={styles.exportButtons}>
-                            <Button
-                                mode="outlined"
-                                onPress={() => handleExport('pdf')}
-                                style={styles.exportButton}
-                                icon="picture-as-pdf"
-                            >
-                                Export PDF
-                            </Button>
-                            <Button
-                                mode="outlined"
-                                onPress={() => handleExport('csv')}
-                                style={styles.exportButton}
-                                icon="table-chart"
-                            >
-                                Export CSV
-                            </Button>
-                            <Button
-                                mode="outlined"
-                                onPress={() => handleExport('excel')}
-                                style={styles.exportButton}
-                                icon="grid-on"
-                            >
-                                Export Excel
-                            </Button>
-                        </View>
-                    </Card.Content>
-                </Card>
+                <View style={styles.deviceInfo}>
+                    <Text style={styles.deviceId}>{salesOverview.deviceId}</Text>
+                </View>
             </ScrollView>
+        );
+    };
+
+    const renderEmployeeSalesTab = () => {
+        if (loading || !reportData.employeeSales) {
+            return (
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Chargement des données...</Text>
+                </View>
+            );
+        }
+
+        const { employeeSales } = reportData;
+
+        return (
+            <ScrollView style={styles.tabContent}>
+                <View style={styles.sectionHeader}>
+                    <Text style={styles.sectionTitle}>Ventes par les employés</Text>
+                    <Text style={styles.periodText}>{employeeSales.period}</Text>
+                </View>
+
+                {employeeSales.employees.length === 0 ? (
+                    <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>Aucune vente pour cette période</Text>
+                    </View>
+                ) : (
+                    employeeSales.employees.map((employee) => (
+                        <View key={employee.id} style={styles.employeeCard}>
+                            <Text style={styles.employeeName}>{employee.name}</Text>
+                            <View style={styles.salesData}>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Vente brute</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.totalSales} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Rabais</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.discounts} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Ventes nettes</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.netSales} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Taxes prévues</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.expectedTaxes} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Pourboires</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.tips} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Frais supplémentaires</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.additionalFees} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Montant collecté</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.totalCollected} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Total Payments ({employee.sales.transactionCount || 0})</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.totalPayments} $</Text>
+                                </View>
+                                <View style={styles.salesRow}>
+                                    <Text style={styles.salesLabel}>Montant remboursé</Text>
+                                    <Text style={styles.salesValue}>{employee.sales.refunds} $</Text>
+                                </View>
+                            </View>
+                        </View>
+                    ))
+                )}
+            </ScrollView>
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <StatusBar backgroundColor="#E2E8F0" barStyle="dark-content" />
+
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                    <MaterialIcons name="menu" size={24} color="#64748B" />
+                </TouchableOpacity>
+
+                <View style={styles.titleContainer}>
+                    <MaterialIcons name="assessment" size={20} color="#3B82F6" />
+                    <Text style={styles.titleText}>Rapports</Text>
+                </View>
+
+                <View style={styles.headerActions}>
+                    <TouchableOpacity style={styles.headerAction}>
+                        <MaterialIcons name="today" size={24} color="#64748B" />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.headerAction}>
+                        <MaterialIcons name="print" size={24} color="#64748B" />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            {/* Tabs */}
+            <View style={styles.tabsContainer}>
+                <TouchableOpacity
+                    style={[
+                        styles.tab,
+                        activeTab === 'APERCU' && styles.activeTab
+                    ]}
+                    onPress={() => setActiveTab('APERCU')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'APERCU' && styles.activeTabText
+                    ]}>
+                        APERÇU
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={[
+                        styles.tab,
+                        activeTab === 'VENTES PAR EMPLOYÉ' && styles.activeTab
+                    ]}
+                    onPress={() => setActiveTab('VENTES PAR EMPLOYÉ')}
+                >
+                    <Text style={[
+                        styles.tabText,
+                        activeTab === 'VENTES PAR EMPLOYÉ' && styles.activeTabText
+                    ]}>
+                        VENTES PAR EMPLOYÉ
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Date and Filter Controls */}
+            <View style={styles.filtersContainer}>
+                <TouchableOpacity style={styles.filterButton}>
+                    <MaterialIcons name="today" size={16} color="#64748B" />
+                    <Text style={styles.filterText}>Aujourd'hui</Text>
+                    <MaterialIcons name="arrow-drop-down" size={16} color="#64748B" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.filterButton}>
+                    <Text style={styles.filterText}>Tous le..</Text>
+                    <MaterialIcons name="arrow-drop-down" size={16} color="#64748B" />
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.filterIcon}>
+                    <MaterialIcons name="filter-list" size={20} color="#64748B" />
+                </TouchableOpacity>
+            </View>
+
+            {/* Tab Content */}
+            {activeTab === 'APERCU' ? renderOverviewTab() : renderEmployeeSalesTab()}
         </SafeAreaView>
     );
 };
@@ -311,75 +300,219 @@ const ReportsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-    },
-    scrollView: {
-        flex: 1,
-        padding: 16,
+        backgroundColor: '#F8FAFC',
     },
     header: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 16,
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
     },
-    headerTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
+    backButton: {
+        padding: 5,
+    },
+    titleContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    titleText: {
+        fontSize: 20,
+        fontWeight: '600',
+        color: '#1E293B',
     },
     headerActions: {
         flexDirection: 'row',
+        gap: 10,
     },
-    searchbar: {
-        marginBottom: 16,
+    headerAction: {
+        padding: 5,
     },
-    summaryCard: {
-        marginBottom: 16,
-        elevation: 4,
+    tabsContainer: {
+        flexDirection: 'row',
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 15,
+        paddingHorizontal: 10,
+        alignItems: 'center',
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
+    },
+    activeTab: {
+        borderBottomColor: '#3B82F6',
+    },
+    tabText: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#64748B',
+    },
+    activeTabText: {
+        color: '#3B82F6',
+    },
+    filtersContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
+        gap: 10,
+    },
+    filterButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        backgroundColor: '#F1F5F9',
+        borderRadius: 6,
+        gap: 5,
+    },
+    filterText: {
+        fontSize: 14,
+        color: '#64748B',
+    },
+    filterIcon: {
+        padding: 8,
+    },
+    tabContent: {
+        flex: 1,
+        backgroundColor: '#F8FAFC',
+    },
+    sectionHeader: {
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
     },
     sectionTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 16,
-    },
-    summaryGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-    },
-    summaryItem: {
-        width: (width - 64) / 2 - 8,
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    summaryValue: {
         fontSize: 20,
-        fontWeight: 'bold',
-        marginTop: 8,
+        fontWeight: '600',
+        color: '#1E293B',
+        marginBottom: 5,
     },
-    summaryLabel: {
+    periodText: {
+        fontSize: 14,
+        color: '#64748B',
+    },
+    summaryCard: {
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+        marginBottom: 10,
+    },
+    summaryTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1E293B',
+        marginBottom: 10,
+    },
+    summaryText: {
+        fontSize: 14,
+        color: '#64748B',
+    },
+    separator: {
+        height: 1,
+        backgroundColor: '#E2E8F0',
+        marginVertical: 10,
+    },
+    salesSection: {
+        padding: 20,
+        backgroundColor: '#FFFFFF',
+    },
+    salesSectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#1E293B',
+    },
+    infoCard: {
+        flexDirection: 'row',
+        padding: 15,
+        backgroundColor: '#F0F9FF',
+        borderLeftWidth: 3,
+        borderLeftColor: '#3B82F6',
+        margin: 20,
+        gap: 10,
+    },
+    infoText: {
+        flex: 1,
+        fontSize: 14,
+        color: '#64748B',
+        lineHeight: 20,
+    },
+    deviceInfo: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    deviceId: {
         fontSize: 12,
-        marginTop: 4,
-        textAlign: 'center',
-    },
-    paymentMethodsCard: {
-        marginBottom: 16,
+        color: '#94A3B8',
+        fontFamily: 'monospace',
     },
     employeeCard: {
-        marginBottom: 16,
+        backgroundColor: '#FFFFFF',
+        margin: 10,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#E2E8F0',
     },
-    hourlyCard: {
-        marginBottom: 16,
+    employeeName: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#1E293B',
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E2E8F0',
     },
-    exportCard: {
-        marginBottom: 24,
+    salesData: {
+        padding: 15,
     },
-    exportButtons: {
+    salesRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F5F9',
     },
-    exportButton: {
+    salesLabel: {
+        fontSize: 14,
+        color: '#64748B',
         flex: 1,
-        marginHorizontal: 4,
+    },
+    salesValue: {
+        fontSize: 14,
+        fontWeight: '500',
+        color: '#1E293B',
+        textAlign: 'right',
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#64748B',
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 50,
+    },
+    emptyText: {
+        fontSize: 16,
+        color: '#64748B',
+        textAlign: 'center',
     },
 });
 

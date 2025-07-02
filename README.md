@@ -1,199 +1,149 @@
-# Pizza POS Mobile App
+# Pizza Barbas POS
 
-A comprehensive mobile point-of-sale (POS) application designed to replace physical Clover payment terminals at pizza delivery locations. This React Native app provides a complete solution for payment processing, tip management, receipt generation, and sales reporting.
+A React Native point-of-sale application that replicates the **exact Clover POS interface** for "Pizza Barbas" restaurant. This app features a complete French-language interface with touchless payment capabilities via phone contacts.
 
-## Features
+## 🚀 Features
 
-### Core POS Functionality
-- **Digital Keypad**: Large, touch-friendly numeric input for order amounts
-- **Quick Amount Buttons**: Pre-set common order values for faster processing
-- **Multiple Payment Methods**: Support for cash, card, NFC/tap, and mobile payments
-- **Tip Management**: Preset tip options (15%, 18%, 20%, 30%) with custom tip entry
-- **Real-time Calculations**: Automatic tip and total calculations
+### 📱 Clover-Style Interface
+- **PIN Entry Screen**: Blue interface with "PIZZA BARBAS" branding and numeric keypad
+- **Sales Entry Screen**: Clean "Vente" interface with amount display and keypad
+- **Processing Screen**: "Traitement..." with animated loading indicators
+- **Reports Dashboard**: Complete "Rapports" with sales overview and employee data
 
-### Receipt Management
-- **Digital Receipts**: Professional receipt generation with store branding
-- **Multiple Delivery Options**: SMS, email, print, and share functionality
-- **Receipt Customization**: Configurable store information and receipt content
-- **Receipt History**: Complete transaction history with search and filtering
+### 💳 Payment Processing
+- Card payments simulation
+- NFC/Contactless payment support
+- Touchless payment via phone contacts
+- Real-time transaction processing
+- 90% success rate simulation
 
-### Reporting & Analytics
-- **Sales Dashboard**: Real-time sales overview with key metrics
-- **Employee Performance**: Individual sales and tip tracking
-- **Payment Method Analysis**: Breakdown by payment type
-- **Time-based Reports**: Hourly, daily, weekly, and monthly views
-- **Export Functionality**: PDF, CSV, and Excel export options
+### 📊 Reports & Analytics
+- **Aperçu des ventes** (Sales Overview)
+- **Ventes par employé** (Employee Sales)
+- Real-time financial data
+- French-formatted currency (€ with comma decimals)
+- Device tracking and session management
 
-### User Management
-- **Role-based Access**: Driver, cashier, and manager roles
-- **Employee Authentication**: Secure PIN-based login system
-- **Session Management**: Automatic timeout and logout functionality
-- **Activity Tracking**: Complete audit trail of all transactions
+### 🔐 Authentication
+- 4-digit PIN authentication
+- Role-based access (Manager, Cashier, Driver, Admin)
+- Session management
 
-### System Features
-- **Offline Mode**: Queue transactions when internet is unavailable
-- **Data Backup**: Cloud storage integration for data safety
-- **Settings Management**: Comprehensive app configuration options
-- **System Status**: Real-time monitoring of connectivity and device status
+## 🛠️ Technical Stack
 
-## Screenshots
+- **React Native** 0.79.5
+- **Expo SDK** 53.0.16
+- **React Navigation** 6.x
+- **React Native Paper** (Material Design components)
+- **@expo/vector-icons** (Material Icons)
+- **French Language Support**
 
-The app includes the following main screens:
-- **Login Screen**: Employee authentication with role-based access
-- **Dashboard**: Sales overview, quick actions, and system status
-- **Payment Terminal**: Main POS interface with keypad and payment options
-- **Receipt Screen**: Transaction completion with receipt delivery options
-- **Reports**: Comprehensive analytics and export functionality
-- **Order History**: Complete transaction history with search and filtering
-- **Settings**: App configuration and system management
+## 📱 Screenshots Match
 
-## Installation & Setup
+The app **exactly replicates** the Clover POS interface shown in your screenshots:
 
-### Prerequisites
-- Node.js (v16 or higher)
-- React Native CLI
-- Android Studio (for Android development)
-- Xcode (for iOS development, macOS only)
+1. **Screen 1**: Blue PIN entry with "PIZZA BARBAS" title
+2. **Screen 2**: White sales entry with "Vente" header and amount keypad
+3. **Screen 3**: Processing screen with "Traitement..." text
+4. **Screen 4-5**: Reports screens with French financial data
 
-### Quick Start
+## 🚀 Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd pizza_machine
-   ```
+```bash
+# Install dependencies
+npm install
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Start development server
+npx expo start
 
-3. **Install iOS dependencies (macOS only)**
-   ```bash
-   cd ios && pod install && cd ..
-   ```
-
-4. **Start the Metro bundler**
-   ```bash
-   npm start
-   ```
-
-5. **Run on Android**
-   ```bash
-   npm run android
-   ```
-
-6. **Run on iOS (macOS only)**
-   ```bash
-   npm run ios
-   ```
-
-### Demo Login Credentials
-
-For testing purposes, the app includes demo employee accounts:
-
-- **Driver**: ID: `001`, PIN: `1234`
-- **Cashier**: ID: `002`, PIN: `5678`
-- **Manager**: ID: `003`, PIN: `9999`
-
-## Project Structure
-
-```
-pizza_machine/
-├── App.js                 # Main app component with navigation
-├── index.js              # App entry point
-├── package.json          # Dependencies and scripts
-├── src/
-│   ├── screens/          # App screens
-│   │   ├── LoginScreen.js
-│   │   ├── DashboardScreen.js
-│   │   ├── PaymentScreen.js
-│   │   ├── ReceiptScreen.js
-│   │   ├── ReportsScreen.js
-│   │   ├── SettingsScreen.js
-│   │   └── OrderHistoryScreen.js
-│   └── theme/
-│       └── theme.js      # App theme configuration
-├── prd.txt              # Product Requirements Document
-└── README.md            # This file
+# Run on device
+# Scan QR code with Expo Go app
 ```
 
-## Key Technologies
+## 🎮 Demo Credentials
 
-- **React Native**: Cross-platform mobile development
-- **React Navigation**: Screen navigation and routing
-- **React Native Paper**: Material Design components
-- **React Native Vector Icons**: Icon library
-- **React Native Safe Area Context**: Safe area handling
+Use any 4-digit PIN to access the app:
+- `1234` - Manager
+- `5678` - Cashier  
+- `9999` - Driver
+- `0000` - Admin
 
-## Configuration
+## 📝 Usage Flow
 
-### Theme Customization
-The app uses a centralized theme system located in `src/theme/theme.js`. You can customize:
-- Color scheme
-- Typography
-- Spacing
-- Border radius values
+1. **PIN Entry**: Enter 4-digit PIN → Navigate to Sales
+2. **Sales Entry**: Enter amount → Process payment
+3. **Processing**: Automatic payment simulation → Success/Error
+4. **Reports**: View sales data and employee performance
 
-### Store Information
-Store details can be configured in the Settings screen:
-- Store name and address
-- Contact information
-- Receipt branding
+## 🎯 Key Features Implemented
 
-## Development
+### French Interface
+- All text in French (Vente, Traitement, Rapports, etc.)
+- French date/time formatting
+- European currency formatting (€ with commas)
 
-### Adding New Features
-1. Create new screen components in `src/screens/`
-2. Add navigation routes in `App.js`
-3. Update the theme if new styling is needed
-4. Test on both Android and iOS
+### Clover-Style Design
+- Exact color schemes from screenshots
+- Matching typography and spacing
+- Authentic button layouts and icons
+- Professional POS appearance
 
-### Payment Integration
-The app is designed to integrate with various payment processors:
-- Stripe
-- Square
-- Clover
-- Custom payment gateways
+### Mock Data Service
+- Realistic transaction simulation
+- Employee sales tracking
+- Financial reporting
+- Device information (ID: C045UO35160275)
 
-### Database Integration
-For production use, replace mock data with:
-- SQLite for local storage
-- Cloud databases (Firebase, AWS, etc.)
-- REST APIs for server communication
+### Touchless Payments
+- NFC/Contactless payment simulation
+- Phone contact integration ready
+- Multiple payment method support
 
-## Production Deployment
+## 🏗️ Architecture
 
-### Android
-1. Generate signed APK/AAB
-2. Configure payment processor credentials
-3. Set up production environment variables
-4. Test on physical devices
+```
+src/
+├── screens/
+│   ├── PinEntryScreen.js      # Authentication screen
+│   ├── SaleScreen.js          # Payment entry screen
+│   ├── ProcessingScreen.js    # Payment processing
+│   └── ReportsScreen.js       # Analytics dashboard
+└── services/
+    └── MockDataService.js     # Data simulation service
+```
 
-### iOS
-1. Configure Apple Developer account
-2. Set up App Store Connect
-3. Configure payment processor credentials
-4. Submit for App Store review
+## 🎨 Design System
 
-## Security Considerations
+- **Primary Blue**: #1E40AF (PIN screen background)
+- **Light Gray**: #F8FAFC (Main app background)
+- **White**: #FFFFFF (Card backgrounds)
+- **Text Dark**: #1E293B
+- **Text Light**: #64748B
+- **Success Green**: #10B981
+- **Error Red**: #EF4444
 
-- All payment data is encrypted in transit and at rest
-- Employee authentication uses secure PIN system
-- Session timeout prevents unauthorized access
-- Audit logging for all transactions
-- PCI DSS compliance for payment processing
+## 📱 Responsive Design
 
-## Support
+- Optimized for tablet/POS terminal screens
+- Touch-friendly button sizes
+- Professional POS layout
+- Portrait orientation optimized
 
-For technical support or feature requests, please contact the development team.
+## 🔧 Configuration
 
-## License
+The app includes:
+- Babel configuration for React Native
+- Metro bundler setup
+- Expo configuration
+- ESLint setup
 
-This project is proprietary software. All rights reserved.
+## 🚀 Deployment Ready
+
+- Production-ready configuration
+- Offline operation support
+- Mock data for testing
+- Error handling and validation
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: January 2024  
-**Compatibility**: iOS 14+, Android 8.0+ 
+**Built for Pizza Barbas** - A professional POS solution replicating the Clover interface with French localization and touchless payment capabilities. 
