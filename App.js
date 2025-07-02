@@ -9,6 +9,7 @@ import PinEntryScreen from './src/screens/PinEntryScreen';
 import SaleScreen from './src/screens/SaleScreen';
 import TipSelectionScreen from './src/screens/TipSelectionScreen';
 import ProcessingScreen from './src/screens/ProcessingScreen';
+import PaymentSuccessScreen from './src/screens/PaymentSuccessScreen';
 import ReportsScreen from './src/screens/ReportsScreen';
 
 // Clover-style theme
@@ -43,6 +44,7 @@ export default function App() {
                         <Stack.Screen name="Sale" component={SaleScreen} />
                         <Stack.Screen name="TipSelection" component={TipSelectionScreen} />
                         <Stack.Screen name="Processing" component={ProcessingScreen} />
+                        <Stack.Screen name="PaymentSuccess" component={PaymentSuccessScreen} />
                         <Stack.Screen name="Reports" component={ReportsScreen} />
                     </Stack.Navigator>
                 </NavigationContainer>
