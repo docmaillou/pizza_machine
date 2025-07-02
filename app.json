@@ -10,7 +10,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#3B82F6"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pizzabarbas.pos",
@@ -26,6 +28,13 @@
     "web": {
       "bundler": "metro"
     },
-    "plugins": ["expo-dev-client"]
+    "plugins": [
+      "expo-dev-client"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1d1ad764-a0e2-4a3d-9e6a-ecf635c17ab9"
+      }
+    }
   }
 }

@@ -1,18 +1,24 @@
 {
-  "builds": {
-    "android": {
-      "release": {
-        "workflow": "managed"
-      },
-      "preview": {
-        "workflow": "managed",
+  "cli": {
+    "version": ">= 16.13.3",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
         "buildType": "apk"
       }
     },
-    "ios": {
-      "release": {
-        "workflow": "managed"
-      }
+    "production": {
+      "autoIncrement": true
     }
+  },
+  "submit": {
+    "production": {}
   }
 }
