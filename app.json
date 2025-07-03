@@ -2,7 +2,7 @@
   "expo": {
     "name": "Pizza Barbas POS",
     "slug": "pizza-barbas-pos",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "jsEngine": "jsc",
@@ -10,15 +10,29 @@
       "resizeMode": "contain",
       "backgroundColor": "#3B82F6"
     },
-    "assetBundlePatterns": [
-      "**/*"
+    "assetBundlePatterns": ["**/*"],
+    "plugins": [
+      "react-native-nfc-manager",
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.pizzabarbas.pos",
+          "enableGooglePay": true
+        }
+      ]
     ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.pizzabarbas.pos",
       "jsEngine": "jsc",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NFCReaderUsageDescription": "Cette app utilise NFC pour traiter les paiements sans contact.",
+        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"]
+      },
+      "entitlements": {
+        "com.apple.developer.nfc.readersession.formats": ["NDEF", "TAG"],
+        "com.apple.developer.in-app-payments": ["merchant.com.pizzabarbas.pos"]
       }
     },
     "android": {
@@ -26,7 +40,12 @@
         "backgroundColor": "#3B82F6"
       },
       "package": "com.pizzabarbas.pos",
-      "jsEngine": "jsc"
+      "jsEngine": "jsc",
+      "permissions": [
+        "android.permission.NFC",
+        "android.permission.INTERNET",
+        "android.permission.ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "bundler": "metro"

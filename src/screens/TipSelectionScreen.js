@@ -48,8 +48,8 @@ const TipSelectionScreen = ({ navigation, route }) => {
     const handleContinue = () => {
         const tipAmount = selectedTip ? selectedTip.amount : 0;
         const totalAmount = baseAmount + tipAmount;
-        
-        navigation.navigate('Processing', {
+
+        navigation.navigate('PaymentMethod', {
             amount: amount,
             tip: formatCurrency(tipAmount),
             total: formatCurrency(totalAmount)
@@ -57,7 +57,7 @@ const TipSelectionScreen = ({ navigation, route }) => {
     };
 
     const handleNoTip = () => {
-        navigation.navigate('Processing', {
+        navigation.navigate('PaymentMethod', {
             amount: amount,
             tip: '0,00',
             total: amount
